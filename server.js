@@ -29,8 +29,8 @@ app.post('/save-test', (req, res) => {
     });
 });
 
-// Load data for specific test
-app.get('/tests/:testTitle', (req, res) => {
+// Load data for specific preset test
+app.get('/presetTests/:testTitle', (req, res) => {
     const testTitle = req.params.testTitle;
     const filePath = path.join(__dirname, 'presetTests', `${testTitle}.json`);
 
@@ -41,6 +41,21 @@ app.get('/tests/:testTitle', (req, res) => {
         res.send(JSON.parse(data));
     });
 });
+
+// Load data for specific preset test
+app.get('/customTests/:testTitle', (req, res) => {
+    const testTitle = req.params.testTitle;
+    const filePath = path.join(__dirname, 'customTests', `${testTitle}.json`);
+
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).send('Failed to load test data');
+        }
+        res.send(JSON.parse(data));
+    });
+});
+
+
 
 // Load data for all presetTests
 app.get('/presetTests', (req, res) => {
@@ -80,7 +95,7 @@ const generateRoute = (testName) => {
     if (!testName) {
         return "";
     }
-    return testName.replace(/\s+/g, '');
+    return testName.replace(/\s+/g, '-');
 };
 app.get('/customTests', (req, res) => {
     const testDirPath = path.join(__dirname, 'customTests');
