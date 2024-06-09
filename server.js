@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 // Endpoint to save test data
 app.post('/save-test', (req, res) => {
     const testName = req.body.testTitle;
-    const filePath = path.join(__dirname, 'tests', `${testName}.json`);
+    const filePath = path.join(__dirname, 'customTests', `${testName}.json`);
 
     if (fs.existsSync(filePath)) {
         return res.status(400).send('Test with the same name already exists');
@@ -29,16 +29,89 @@ app.post('/save-test', (req, res) => {
     });
 });
 
-// Endpoint to load test data
-app.get('/load-test/:testTitle', (req, res) => {
+// Load data for specific test
+app.get('/tests/:testTitle', (req, res) => {
     const testTitle = req.params.testTitle;
-    const filePath = path.join(__dirname, 'tests', `${testTitle}.json`);
+    const filePath = path.join(__dirname, 'presetTests', `${testTitle}.json`);
 
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
             return res.status(500).send('Failed to load test data');
         }
         res.send(JSON.parse(data));
+    });
+});
+
+// Load data for all presetTests
+app.get('/presetTests', (req, res) => {
+    const testDirPath = path.join(__dirname, 'presetTests');
+
+    fs.readdir(testDirPath, (err, files) => {
+        if (err) {
+            return res.status(500).send('Failed to load test data');
+        }
+
+        // Filter just JSON files
+        const jsonFiles = files.filter(file => file.endsWith('.json'));
+
+        const tests = [];
+
+        jsonFiles.forEach(file => {
+            const filePath = path.join(testDirPath, file);
+            const fileData = fs.readFileSync(filePath, 'utf8');
+            const jsonData = JSON.parse(fileData);
+
+            const testSummary = {
+                name: jsonData.name,
+                route: jsonData.route,
+                description: jsonData.description
+            };
+
+            tests.push(testSummary);
+        });
+
+
+        res.json(tests);
+    });
+});
+
+
+const generateRoute = (testName) => {
+    if (!testName) {
+        return "";
+    }
+    return testName.replace(/\s+/g, '');
+};
+app.get('/customTests', (req, res) => {
+    const testDirPath = path.join(__dirname, 'customTests');
+
+    fs.readdir(testDirPath, (err, files) => {
+        if (err) {
+            return res.status(500).send('Failed to load test data');
+        }
+        // Filter just JSON files
+        const jsonFiles = files.filter(file => file.endsWith('.json'));
+
+        const tests = [];
+
+        jsonFiles.forEach(file => {
+            const filePath = path.join(testDirPath, file);
+            const fileData = fs.readFileSync(filePath, 'utf8');
+            const jsonData = JSON.parse(fileData);
+            // Generate route from test name
+            const route = generateRoute(jsonData.testTitle);
+
+            const testSummary = {
+                name: jsonData.testTitle,
+                route: route,
+                description: jsonData.testDescription
+            };
+
+            tests.push(testSummary);
+        });
+
+
+        res.json(tests);
     });
 });
 
