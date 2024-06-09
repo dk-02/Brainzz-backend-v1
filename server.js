@@ -12,9 +12,14 @@ app.use(bodyParser.json());
 
 // Endpoint to save test data
 app.post('/save-test', (req, res) => {
-    const testName = req.body.testTitle; // Using 'testTitle' as the file name
-    const testData = JSON.stringify(req.body);
+    const testName = req.body.testTitle;
     const filePath = path.join(__dirname, 'tests', `${testName}.json`);
+
+    if (fs.existsSync(filePath)) {
+        return res.status(400).send('Test with the same name already exists');
+    }
+
+    const testData = JSON.stringify(req.body);
 
     fs.writeFile(filePath, testData, (err) => {
         if (err) {
