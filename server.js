@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 // Endpoint to save test data
 app.post('/save-test', (req, res) => {
-    const testName = req.body.testTitle;
+    const testName = generateRoute(req.body.testTitle);
     const filePath = path.join(__dirname, 'customTests', `${testName}.json`);
 
     if (fs.existsSync(filePath)) {
