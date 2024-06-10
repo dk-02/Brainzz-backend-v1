@@ -2,15 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.js",
+      "src": "./index.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
-    { "src": "/save-test", "dest": "/server.js" },
-    { "src": "/presetTests", "dest": "/server.js" },
-    { "src": "/presetTests/(.*)", "dest": "/server.js" },
-    { "src": "/customTests", "dest": "/server.js" },
-    { "src": "/customTests/(.*)", "dest": "/server.js" }
+    {
+      "src": "/(.*)",
+      "dest": "/"
+    }
   ]
 }
